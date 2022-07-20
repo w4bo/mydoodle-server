@@ -10,11 +10,7 @@
 <script>
 export default {
   name: "Error",
-  computed: {
-    msg() {
-      return this.$auth0.error.value;
-    }
-  }
+  computed: { msg() { return this.$auth0.error.value; } }
 };
 </script>
 

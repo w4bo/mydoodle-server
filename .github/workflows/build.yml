@@ -22,7 +22,7 @@ jobs:
         run: |
           cd DB
           chmod +x *.sh
-          chmod +x .gradlew
+          chmod +x ./gradlew
           ./init.sh
           docker-compose up &
           ./gradlew --stacktrace --scan

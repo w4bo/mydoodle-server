@@ -11,7 +11,7 @@ import HomeContent from "../components/HomeContent";
 
 export default {
   name: "home",
-  components: {
+  components: { 
     HomeContent,
   },
 };

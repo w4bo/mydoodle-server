@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="it.w4bo.SampleTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-07-23T10:40:54" hostname="DESKTOP-4GCVOBR" time="2.865">
-  <properties/>
-  <testcase name="test01()" classname="it.w4bo.SampleTest" time="2.865"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
-]]></system-err>
-</testsuite>

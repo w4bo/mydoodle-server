@@ -54,7 +54,10 @@
                     }"
                     v-if="typeof value.checked !== 'undefined'"
                     :disabled="user.name !== value.id"
-                    @click="value.checked = toggle(value.checked)"
+                    @click="
+                      value.modified = true;
+                      value.checked = toggle(value.checked);
+                    "
                   >
                     {{
                       value.checked === "true" || value.checked === true
@@ -84,7 +87,12 @@
         </button>
       </div>
       <div class="container d-flex justify-content-center">
-        <button type="button" class="btn btn-primary" style="align: center">
+        <button
+          type="button"
+          class="btn btn-primary"
+          style="align: center"
+          @click="update()"
+        >
           Save
         </button>
       </div>
@@ -122,14 +130,37 @@ export default {
           {
             slotdate: turno.slotdate,
             slotbin: turno.slotbin,
+            slotwhere: turno.slotwhere,
             checked: turno.checked,
             weekyear: turno.weekyear,
-            modified: turno.modified,
+            modified: false,
             id: turno.id,
           },
         ]);
       });
       return dict;
+    },
+    update(then) {
+      let res = [];
+      for (let row in this.piv) {
+        for (let col in this.piv[row]) {
+          let el = this.piv[row][col];
+          if (el.modified) {
+            res.push({
+              id: el["id"],
+              slotdate: el["slotdate"],
+              slotbin: el["slotbin"],
+              slotwhere: el["slotwhere"],
+              checked: el["checked"],
+            });
+          }
+        }
+      }
+      let s = JSON.stringify(res).replaceAll("@", "%40").replaceAll("[", "%5B").replaceAll("]", "%5D").replaceAll("{", "%7B").replaceAll("}", "%7D")
+      console.log()
+      axios
+        .post("http://localhost:8080/Gradle___db_population_war/MyDoodle?cmd=update&turni=" + s)
+        .then((response) => { if (then) then(); });
     },
     toggle(value) {
       if (value === true || value === "true") {
@@ -138,16 +169,24 @@ export default {
         return true;
       }
     },
+    addUser(then) {
+      axios
+        .post("http://localhost:8080/Gradle___db_population_war/MyDoodle?cmd=adduser&id=" + this.user.name + "&firstname=foo" + "&lastname=bar")
+        .then((response) => { if (then) then(); });
+    },
+    getTurni() {
+      axios
+        .get("http://localhost:8080/Gradle___db_population_war/MyDoodle")
+        .then((response) => {
+          this.turni = response["data"];
+          this.piv = this.pivot(this.turni);
+        });
+    },
     header: function (turni) {
       let dict = {};
       turni.forEach(function (turno) {
-        dict[turno.slotdate + " " + turno.slotbin] = {
-          slotdate: turno.slotdate,
-          slotbin: turno.slotbin,
-          checked: turno.checked,
+        dict[turno.slotdate + " " + turno.slotwhere + " " + turno.slotbin] = {
           weekyear: turno.weekyear,
-          modified: turno.modified,
-          id: turno.id,
         };
       });
       return dict;
@@ -161,12 +200,7 @@ export default {
     };
   },
   mounted() {
-    axios
-      .get("http://localhost:8080/Gradle___db_population_war/MyDoodle")
-      .then((response) => {
-        this.turni = response["data"];
-        this.piv = this.pivot(this.turni);
-      });
+    this.addUser(this.getTurni);
   },
 };
 </script>

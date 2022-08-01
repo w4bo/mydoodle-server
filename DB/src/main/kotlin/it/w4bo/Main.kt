@@ -3,7 +3,11 @@ package it.w4bo
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import io.github.cdimascio.dotenv.dotenv
+import org.json.JSONArray
+import org.json.JSONObject
+import java.sql.Connection
 import java.sql.DriverManager
+import java.sql.ResultSet
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -50,11 +54,61 @@ fun getCalendarWithoutTime(date: Date): Calendar {
     return calendar
 }
 
+fun getConn(): Connection {
+    val dotenv = dotenv()
+    Class.forName("com.mysql.jdbc.Driver").newInstance()
+    return DriverManager.getConnection(
+        "jdbc:mysql://${dotenv["MYSQL_IP"]}:${dotenv["MYSQL_PORT"]}/${dotenv["MYSQL_DB"]}",
+        dotenv["MYSQL_USER"],
+        dotenv["MYSQL_PWD"]
+    )
+}
+
+fun updateDoodle(turni: JSONArray) {
+    val con = getConn()
+    val prepStmt = con.prepareStatement("""UPDATE userindoodle SET checked=? WHERE id=? AND slotbin=? AND slotwhere=? AND slotdate=?""")
+    turni.forEach {
+        val o = it as JSONObject
+        println(o)
+        val id: String = o.getString("id")
+        val slotdate: String = o.getString("slotdate")
+        val slotbin: String = o.getString("slotbin")
+        val slotwhere: String = o.getString("slotwhere")
+        val checked: Boolean = o.getBoolean("checked")
+        prepStmt.setString(1, "" + checked)
+        prepStmt.setString(2, id)
+        prepStmt.setString(3, slotbin)
+        prepStmt.setString(4, slotwhere)
+        prepStmt.setString(5, slotdate)
+        prepStmt.addBatch()
+    }
+    prepStmt.executeBatch()
+}
+
+fun writeUser(id: String, firstname: String?, lastname: String?, role: String?) {
+    val con = getConn()
+    var prepStmt = con.prepareStatement("""INSERT INTO doodleuser VALUES ('$id', '$firstname', '$lastname', '$role')""")
+    prepStmt.execute()
+
+    prepStmt = con.prepareStatement("INSERT INTO userindoodle VALUES (?, ?, ?, ?, ?)")
+    val rs: ResultSet = con.createStatement().executeQuery("select * from doodle")
+    while (rs.next()) {
+        val slotdate = rs.getString("slotdate")
+        val slotbin = rs.getString("slotbin")
+        val slotwhere = rs.getString("slotwhere")
+        prepStmt.setString(1, id)
+        prepStmt.setString(2, slotdate)
+        prepStmt.setString(3, slotbin)
+        prepStmt.setString(4, slotwhere)
+        prepStmt.setString(5, "false")
+        prepStmt.addBatch()
+    }
+    prepStmt.executeBatch()
+}
+
 fun writeTurni() {
     val doodles = getDoodles()
     val dotenv = dotenv()
-
-    Class.forName("com.mysql.jdbc.Driver").newInstance()
     val conn = DriverManager.getConnection(
         "jdbc:mysql://${dotenv["MYSQL_IP"]}:${dotenv["MYSQL_PORT"]}/${dotenv["MYSQL_DB"]}",
         dotenv["MYSQL_USER"],

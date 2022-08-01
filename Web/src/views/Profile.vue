@@ -1,7 +1,7 @@
 <template>
-  <div class="container">
+  <div class="d-flex justify-content-center">
     <div class="row">
-      <div class="container d-flex">
+      <div class="d-flex justify-content-center">
         <button type="button" class="btn btn-light" @click="week = week - 1">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -194,6 +194,7 @@ export default {
   },
   data() {
     return {
+      popupattivo: false,
       week: moment().week(),
       turni: [],
       piv: [],

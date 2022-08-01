@@ -25,32 +25,42 @@
               :key="turno"
               style="text-align: center"
             >
-              <th v-if="turno.week == week">{{ index }}</th>
+              <th v-if="parseInt('' + turno.weekyear) === parseInt('' + week)">
+                {{ index }}
+              </th>
             </template>
           </thead>
           <tbody>
-            <tr v-for="turno of piv" :key="turno.name">
+            <tr v-for="turno of piv" :key="turno.id">
               <template
                 v-for="value in turno"
                 :key="value"
                 style="text-align: center"
               >
-                <td v-if="value.week == week">
+                <td
+                  v-if="parseInt('' + value.weekyear) === parseInt('' + week)"
+                >
                   <div v-if="typeof value.checked === 'undefined'">
-                    {{ value.name }}
+                    {{ value.id }}
                   </div>
                   <button
                     type="button"
                     class="btn"
                     v-bind:class="{
-                      'btn-danger': value.checked === false,
-                      'btn-success': value.checked === true,
+                      'btn-danger':
+                        value.checked === 'false' || value.checked === false,
+                      'btn-success':
+                        value.checked === 'true' || value.checked === true,
                     }"
                     v-if="typeof value.checked !== 'undefined'"
-                    :disabled="user.name !== value.name"
-                    @click="value.checked = !value.checked"
+                    :disabled="user.name !== value.id"
+                    @click="value.checked = toggle(value.checked)"
                   >
-                    {{ value.checked ? "✓" : "-" }}
+                    {{
+                      value.checked === "true" || value.checked === true
+                        ? "✓"
+                        : "-"
+                    }}
                   </button>
                 </td>
               </template>
@@ -85,6 +95,8 @@
 <script>
 import { useAuth0 } from "@auth0/auth0-vue";
 import moment from "moment";
+import axios from "axios";
+
 export default {
   modified: false,
   name: "profile",
@@ -98,39 +110,44 @@ export default {
     print(value) {
       return true;
     },
-    toggle(value) {
-      value.checked = !value.checked;
-    },
     pivot: function (turni) {
       let dict = {};
       turni.forEach(function (turno) {
-        console.log(turno.name)
-        dict[turno.name + " " + turno.week] = (dict[turno.name + " " + turno.week]
-          ? dict[turno.name + " " + turno.week]
-          : [{ name: turno.name, week: turno.week }]
+        dict[turno.id + " " + turno.weekyear] = (dict[
+          turno.id + " " + turno.weekyear
+        ]
+          ? dict[turno.id + " " + turno.weekyear]
+          : [{ id: turno.id, weekyear: turno.weekyear }]
         ).concat([
           {
-            date: turno.date,
-            turno: turno.turno,
+            slotdate: turno.slotdate,
+            slotbin: turno.slotbin,
             checked: turno.checked,
-            week: turno.week,
+            weekyear: turno.weekyear,
             modified: turno.modified,
-            name: turno.name
+            id: turno.id,
           },
         ]);
       });
       return dict;
     },
+    toggle(value) {
+      if (value === true || value === "true") {
+        return false;
+      } else {
+        return true;
+      }
+    },
     header: function (turni) {
       let dict = {};
       turni.forEach(function (turno) {
-        dict[turno.date + " " + turno.turno] = {
-          date: turno.date,
-          turno: turno.turno,
+        dict[turno.slotdate + " " + turno.slotbin] = {
+          slotdate: turno.slotdate,
+          slotbin: turno.slotbin,
           checked: turno.checked,
-          week: turno.week,
+          weekyear: turno.weekyear,
           modified: turno.modified,
-          name: turno.name,
+          id: turno.id,
         };
       });
       return dict;
@@ -138,108 +155,18 @@ export default {
   },
   data() {
     return {
-      week: moment("2022-07-08", "YYYY-MM-DD").week(),
-      turni: [
-        {
-          modified: false,
-          name: "teo.francia@gmail.com",
-          date: "2022-07-07",
-          turno: "PED AM",
-          week: 28,
-          checked: true,
-        },
-        {
-          modified: false,
-          name: "teo.francia@gmail.com",
-          date: "2022-07-07",
-          turno: "PED PM",
-          week: 28,
-          checked: false,
-        },
-        {
-          modified: false,
-          name: "teo.francia@gmail.com",
-          date: "2022-07-08",
-          turno: "PED PM",
-          week: 29,
-          checked: false,
-        },
-        {
-          modified: false,
-          name: "laura.tarsi14@gmail.com",
-          date: "2022-07-07",
-          turno: "PED AM",
-          week: 28,
-          checked: true,
-        },
-        {
-          modified: false,
-          name: "laura.tarsi14@gmail.com",
-          date: "2022-07-07",
-          turno: "PED PM",
-          week: 28,
-          checked: false,
-        },
-        {
-          modified: false,
-          name: "laura.tarsi14@gmail.com",
-          date: "2022-07-08",
-          turno: "PED PM",
-          week: 29,
-          checked: false,
-        },
-      ],
-      piv: this.pivot([
-        {
-          modified: false,
-          name: "teo.francia@gmail.com",
-          date: "2022-07-07",
-          turno: "PED AM",
-          week: 28,
-          checked: true,
-        },
-        {
-          modified: false,
-          name: "teo.francia@gmail.com",
-          date: "2022-07-07",
-          turno: "PED PM",
-          week: 28,
-          checked: false,
-        },
-        {
-          modified: false,
-          name: "teo.francia@gmail.com",
-          date: "2022-07-08",
-          turno: "PED PM",
-          week: 29,
-          checked: false,
-        },
-        {
-          modified: false,
-          name: "laura.tarsi14@gmail.com",
-          date: "2022-07-07",
-          turno: "PED AM",
-          week: 28,
-          checked: true,
-        },
-        {
-          modified: false,
-          name: "laura.tarsi14@gmail.com",
-          date: "2022-07-07",
-          turno: "PED PM",
-          week: 28,
-          checked: false,
-        },
-        {
-          modified: false,
-          name: "laura.tarsi14@gmail.com",
-          date: "2022-07-08",
-          turno: "PED PM",
-          week: 29,
-          checked: false,
-        },
-      ]),
+      week: moment().week(),
+      turni: [],
+      piv: [],
     };
+  },
+  mounted() {
+    axios
+      .get("http://localhost:8080/Gradle___db_population_war/MyDoodle")
+      .then((response) => {
+        this.turni = response["data"];
+        this.piv = this.pivot(this.turni);
+      });
   },
 };
 </script>

@@ -30,8 +30,8 @@ create table if not exists userindoodle (
     checked varchar(255),
     primary key(id, slotdate, slotbin, slotwhere),
     unique(id, slotdate, slotbin, slotwhere),
-    foreign key (slotdate, slotbin, slotwhere) references doodle(slotdate, slotbin, slotwhere),
-    foreign key (id) references doodleuser(id)
+    foreign key (slotdate, slotbin, slotwhere) references doodle(slotdate, slotbin, slotwhere) on delete cascade,
+    foreign key (id) references doodleuser(id) on delete cascade
 );
 
 -- CREATE INDEX time_index ON doodle(to_date(slotdate, 'YYYY-MM-DD'));

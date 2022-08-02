@@ -122,6 +122,14 @@ fun writeUser(id: String, firstname: String?, lastname: String?, role: String?) 
     con.close()
 }
 
+fun removeUser(id: String) {
+    val con = getConn()
+    val prepStmt = con.prepareStatement("""DELETE FROM doodleuser where id = '$id'""")
+    prepStmt.execute()
+    prepStmt.close()
+    con.close()
+}
+
 fun writeTurni() {
     val doodles = getDoodles()
     val con = getConn()

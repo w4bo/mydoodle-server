@@ -10,7 +10,7 @@ class SampleTest {
     fun test01() {
         try {
             writeTurni()
-            writeUser("foo.bar@gmail.com", "Matteo", "Francia", "admin")
+            writeUser("foo.bar@gmail.com", "A", "B", "admin")
             val turni = JSONArray()
             val turno = JSONObject()
             turno.put("id", "foo.bar@gmail.com")
@@ -21,6 +21,8 @@ class SampleTest {
             turni.put(turno)
             updateDoodle(turni)
             writeUser("barz@gmail.com", "C", "D", "admin")
+            removeUser("barz@gmail.com")
+            removeUser("foo.bar@gmail.com")
         } catch (e: Exception) {
             e.printStackTrace()
             fail()

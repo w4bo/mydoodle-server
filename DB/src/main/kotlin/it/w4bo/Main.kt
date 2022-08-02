@@ -5,11 +5,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import io.github.cdimascio.dotenv.dotenv
 import org.json.JSONArray
 import org.json.JSONObject
-import java.sql.Connection
-import java.sql.DriverManager
-import java.sql.ResultSet
+import java.sql.*
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.Date
 
 class Day {
     val weekDay: String = ""
@@ -37,6 +36,41 @@ class Doodles {
 }
 
 fun getResourceAsText(path: String) = object {}.javaClass.getResource(path)
+
+fun getTurni(): JSONArray {
+    val json = JSONArray()
+    val con = getConn()
+    // val query = "select b.*, a.id, a.checked from userindoodle a join doodle b on (a.slotdate = b.slotdate and a.slotbin = b.slotbin and a.slotwhere = b.slotwhere) order by slotdate, slotwhere, slotbin, id"
+    val query = """
+                select a.*, coalesce(b.checked, 'false') as checked
+                from
+                    (
+                        select d.*, u.id
+                        from doodle d, doodleuser u
+                        where to_date(d.slotdate, 'YYYY-MM-DD') between (now() - interval '1 month') and (now() + interval '1 month')
+                    ) a left outer join userindoodle b on (a.id = b.id and a.slotdate = b.slotdate and a.slotbin = b.slotbin and a.slotwhere = b.slotwhere)
+                order by slotdate, slotwhere, slotbin, id
+                """.trimIndent().replace("\\s+".toRegex(), " ")
+    // create the java statement
+    val st: Statement = con.createStatement()
+    // execute the query, and get a java resultset
+    val rs: ResultSet = st.executeQuery(query)
+    // iterate through the java resultset
+    val rsmd: ResultSetMetaData = rs.getMetaData()
+    while (rs.next()) {
+        val numColumns: Int = rsmd.getColumnCount()
+        val obj = JSONObject()
+        for (i in 1..numColumns) {
+            val column_name: String = rsmd.getColumnName(i)
+            obj.put(column_name, rs.getObject(column_name))
+        }
+        json.put(obj)
+    }
+    rs.close()
+    st.close()
+    con.close()
+    return json
+}
 
 fun getDoodles(): Doodles {
     val mapper = ObjectMapper(YAMLFactory())

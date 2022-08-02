@@ -2,14 +2,11 @@
 
 package it.unibo.web
 
-import it.w4bo.getConn
+import it.w4bo.getTurni
 import it.w4bo.updateDoodle
 import it.w4bo.writeUser
 import org.json.JSONArray
 import org.json.JSONObject
-import java.sql.ResultSet
-import java.sql.ResultSetMetaData
-import java.sql.Statement
 import javax.servlet.ServletException
 import javax.servlet.annotation.WebServlet
 import javax.servlet.http.HttpServlet
@@ -22,36 +19,7 @@ class IAMServlet : HttpServlet() {
 
     @Throws(ServletException::class)
     override fun doGet(request: HttpServletRequest, response: HttpServletResponse) {
-        val json = JSONArray()
-        val conn = getConn()
-        // val query = "select b.*, a.id, a.checked from userindoodle a join doodle b on (a.slotdate = b.slotdate and a.slotbin = b.slotbin and a.slotwhere = b.slotwhere) order by slotdate, slotwhere, slotbin, id"
-        val query = 
-                """
-                select a.*, coalesce(b.checked, 'false') as checked
-                from
-                    (
-                        select d.*, u.id
-                        from doodle d, doodleuser u
-                        where to_date(d.slotdate, 'YYYY-MM-DD') between (now() - interval '1 month') and (now() + interval '1 month')
-                    ) a left outer join userindoodle b on (a.id = b.id and a.slotdate = b.slotdate and a.slotbin = b.slotbin and a.slotwhere = b.slotwhere)
-                order by slotdate, slotwhere, slotbin, id
-                """.trimIndent().replace("\\s+".toRegex(), " ")
-        // create the java statement
-        val st: Statement = conn.createStatement()
-        // execute the query, and get a java resultset
-        val rs: ResultSet = st.executeQuery(query)
-        // iterate through the java resultset
-        val rsmd: ResultSetMetaData = rs.getMetaData()
-        while (rs.next()) {
-            val numColumns: Int = rsmd.getColumnCount()
-            val obj = JSONObject()
-            for (i in 1..numColumns) {
-                val column_name: String = rsmd.getColumnName(i)
-                obj.put(column_name, rs.getObject(column_name))
-            }
-            json.put(obj)
-        }
-        write(response, json.toString())
+        write(response, getTurni().toString())
     }
 
     @Throws(ServletException::class)

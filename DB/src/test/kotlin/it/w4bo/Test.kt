@@ -20,6 +20,7 @@ class SampleTest {
             turno.put("checked", "true")
             turni.put(turno)
             updateDoodle(turni)
+            getTurni()
             writeUser("barz@gmail.com", "C", "D", "admin")
             removeUser("barz@gmail.com")
             removeUser("foo.bar@gmail.com")

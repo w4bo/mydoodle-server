@@ -89,12 +89,15 @@ fun updateDoodle(turni: JSONArray) {
         prepStmt.addBatch()
     }
     prepStmt.executeBatch()
+    prepStmt.close()
+    con.close()
 }
 
 fun writeUser(id: String, firstname: String?, lastname: String?, role: String?) {
     val con = getConn()
     var prepStmt = con.prepareStatement("""INSERT INTO doodleuser VALUES ('$id', '$firstname', '$lastname', '$role')""")
     prepStmt.execute()
+    prepStmt.close()
 
     prepStmt = con.prepareStatement("INSERT INTO userindoodle VALUES (?, ?, ?, ?, ?)")
     val rs: ResultSet = con.createStatement().executeQuery("select * from doodle")
@@ -110,12 +113,15 @@ fun writeUser(id: String, firstname: String?, lastname: String?, role: String?) 
         prepStmt.addBatch()
     }
     prepStmt.executeBatch()
+    rs.close()
+    prepStmt.close()
+    con.close()
 }
 
 fun writeTurni() {
     val doodles = getDoodles()
-    val conn = getConn()
-    val prepStmt = conn.prepareStatement("INSERT INTO doodle VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+    val con = getConn()
+    val prepStmt = con.prepareStatement("INSERT INTO doodle VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
     val formatter = SimpleDateFormat("yyyy-MM-dd")
     val today = formatter.format(Date())
     doodles.doodles.forEach { doodle ->
@@ -136,7 +142,6 @@ fun writeTurni() {
         datesInRange.forEach { date ->
             val dateString = formatter.format(date)
             val dayWeek = formatterE.format(date)
-
             doodle.week.forEach { doodleday ->
                 if (doodleday.weekDay == dayWeek) {
                     prepStmt.setString(1, dateString)
@@ -154,6 +159,8 @@ fun writeTurni() {
         }
         prepStmt.executeBatch()
     }
+    prepStmt.close()
+    con.close()
 }
 
 fun main() {

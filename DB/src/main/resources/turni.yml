@@ -22,23 +22,23 @@ doodles:
         - weekDay: Thu
           bin: AM
           where: PED
-        - weekDay: Fry
-          bin: PM
-          where: PED
-        - weekDay: Fry
+        - weekDay: Fri
           bin: AM
           where: PED
-        - weekDay: Sat
+        - weekDay: Fri
           bin: PM
           where: PED
         - weekDay: Sat
           bin: AM
           where: PED
-        - weekDay: Sun
+        - weekDay: Sat
           bin: PM
           where: PED
         - weekDay: Sun
           bin: AM
           where: PED
-      from: 2022-01-01
+        - weekDay: Sun
+          bin: PM
+          where: PED
+      from: 2021-12-01
       to: 2023-01-31

@@ -56,11 +56,17 @@ fun getCalendarWithoutTime(date: Date): Calendar {
 
 fun getConn(): Connection {
     val dotenv = dotenv()
-    Class.forName("com.mysql.jdbc.Driver").newInstance()
+    // Class.forName("com.mysql.jdbc.Driver").newInstance()
+    // return DriverManager.getConnection(
+    //     "jdbc:mysql://${dotenv["MYSQL_IP"]}:${dotenv["MYSQL_PORT"]}/${dotenv["MYSQL_DB"]}",
+    //     dotenv["MYSQL_USER"],
+    //     dotenv["MYSQL_PWD"]
+    // )
+    Class.forName("org.postgresql.Driver").newInstance()
     return DriverManager.getConnection(
-        "jdbc:mysql://${dotenv["MYSQL_IP"]}:${dotenv["MYSQL_PORT"]}/${dotenv["MYSQL_DB"]}",
-        dotenv["MYSQL_USER"],
-        dotenv["MYSQL_PWD"]
+        "jdbc:postgresql://${dotenv["POSTGRES_IP"]}:${dotenv["POSTGRES_PORT"]}/${dotenv["POSTGRES_DB"]}",
+        dotenv["POSTGRES_USER"],
+        dotenv["POSTGRES_PWD"]
     )
 }
 
@@ -108,12 +114,7 @@ fun writeUser(id: String, firstname: String?, lastname: String?, role: String?) 
 
 fun writeTurni() {
     val doodles = getDoodles()
-    val dotenv = dotenv()
-    val conn = DriverManager.getConnection(
-        "jdbc:mysql://${dotenv["MYSQL_IP"]}:${dotenv["MYSQL_PORT"]}/${dotenv["MYSQL_DB"]}",
-        dotenv["MYSQL_USER"],
-        dotenv["MYSQL_PWD"]
-    )
+    val conn = getConn()
     val prepStmt = conn.prepareStatement("INSERT INTO doodle VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
     val formatter = SimpleDateFormat("yyyy-MM-dd")
     val today = formatter.format(Date())

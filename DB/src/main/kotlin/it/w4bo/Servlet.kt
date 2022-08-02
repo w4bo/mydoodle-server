@@ -2,11 +2,9 @@
 
 package it.unibo.web
 
-import io.github.cdimascio.dotenv.dotenv
 import it.w4bo.getConn
 import it.w4bo.updateDoodle
 import it.w4bo.writeUser
-import org.apache.commons.io.IOUtils
 import org.json.JSONArray
 import org.json.JSONObject
 import java.sql.ResultSet
@@ -26,7 +24,7 @@ class IAMServlet : HttpServlet() {
     override fun doGet(request: HttpServletRequest, response: HttpServletResponse) {
         val json = JSONArray()
         val conn = getConn()
-        val query = "select b.*, a.id, a.checked from userindoodle a join doodle b on (a.slotdate = b.slotdate and a.slotbin = b.slotbin and a.slotwhere = b.slotwhere)"
+        val query = "select b.*, a.id, a.checked from userindoodle a join doodle b on (a.slotdate = b.slotdate and a.slotbin = b.slotbin and a.slotwhere = b.slotwhere) order by slotdate, slotwhere, slotbin, id"
         // create the java statement
         val st: Statement = conn.createStatement()
         // execute the query, and get a java resultset
@@ -61,12 +59,10 @@ class IAMServlet : HttpServlet() {
             res.put("err", e.message)
             write(response, res.toString())
         }
-
     }
 
     companion object {
         const val OK = 200
-        val dotenv = dotenv()
         /**
          * Send the result
          * @param response HTTP response object
@@ -75,10 +71,7 @@ class IAMServlet : HttpServlet() {
         fun write(response: HttpServletResponse, result: String) {
             response.addHeader("Access-Control-Allow-Origin", "*")
             response.addHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS")
-            response.addHeader(
-                "Access-Control-Allow-Headers",
-                "Origin, X-Requested-With, Content-Type, Accept, X-Auth-Token"
-            )
+            response.addHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, X-Auth-Token")
             response.characterEncoding = "UTF-8"
             response.status = OK
             response.outputStream.print(result)

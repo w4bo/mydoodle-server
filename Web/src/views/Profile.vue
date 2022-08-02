@@ -104,6 +104,8 @@
 import { useAuth0 } from "@auth0/auth0-vue";
 import moment from "moment";
 import axios from "axios";
+import dotenv from "dotenv";
+dotenv.config();
 
 export default {
   modified: false,
@@ -159,7 +161,7 @@ export default {
       let s = JSON.stringify(res).replaceAll("@", "%40").replaceAll("[", "%5B").replaceAll("]", "%5D").replaceAll("{", "%7B").replaceAll("}", "%7D")
       console.log()
       axios
-        .post("http://localhost:8080/Gradle___db_population_war/MyDoodle?cmd=update&turni=" + s)
+        .post(process.env.VUE_APP_BE + "?cmd=update&turni=" + s)
         .then((response) => { if (then) then(); });
     },
     toggle(value) {
@@ -171,12 +173,12 @@ export default {
     },
     addUser(then) {
       axios
-        .post("http://localhost:8080/Gradle___db_population_war/MyDoodle?cmd=adduser&id=" + this.user.name + "&firstname=foo" + "&lastname=bar")
+        .post(process.env.VUE_APP_BE + "?cmd=adduser&id=" + this.user.name + "&firstname=foo" + "&lastname=bar")
         .then((response) => { if (then) then(); });
     },
     getTurni() {
       axios
-        .get("http://localhost:8080/Gradle___db_population_war/MyDoodle")
+        .get(process.env.VUE_APP_BE + "")
         .then((response) => {
           this.turni = response["data"];
           this.piv = this.pivot(this.turni);

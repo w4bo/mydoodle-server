@@ -1,6 +1,9 @@
 {
   "name": "MyDoodle",
   "version": "0.0.1",
+  "engines": {
+    "node": "14.x"
+  },
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

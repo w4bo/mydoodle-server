@@ -24,7 +24,18 @@ class IAMServlet : HttpServlet() {
     override fun doGet(request: HttpServletRequest, response: HttpServletResponse) {
         val json = JSONArray()
         val conn = getConn()
-        val query = "select b.*, a.id, a.checked from userindoodle a join doodle b on (a.slotdate = b.slotdate and a.slotbin = b.slotbin and a.slotwhere = b.slotwhere) order by slotdate, slotwhere, slotbin, id"
+        // val query = "select b.*, a.id, a.checked from userindoodle a join doodle b on (a.slotdate = b.slotdate and a.slotbin = b.slotbin and a.slotwhere = b.slotwhere) order by slotdate, slotwhere, slotbin, id"
+        val query = 
+                """
+                select a.*, coalesce(b.checked, 'false') as checked
+                from
+                    (
+                        select d.*, u.id
+                        from doodle d, doodleuser u
+                        where to_date(d.slotdate, 'YYYY-MM-DD') between (now() - interval '1 month') and (now() + interval '1 month')
+                    ) a left outer join userindoodle b on (a.id = b.id and a.slotdate = b.slotdate and a.slotbin = b.slotbin and a.slotwhere = b.slotwhere)
+                order by slotdate, slotwhere, slotbin, id
+                """.trimIndent().replace("\\s+".toRegex(), " ")
         // create the java statement
         val st: Statement = conn.createStatement()
         // execute the query, and get a java resultset

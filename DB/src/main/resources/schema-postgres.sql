@@ -29,11 +29,20 @@ create table if not exists userindoodle (
     slotwhere varchar(255),
     checked varchar(255),
     primary key(id, slotdate, slotbin, slotwhere),
+    unique(id, slotdate, slotbin, slotwhere),
     foreign key (slotdate, slotbin, slotwhere) references doodle(slotdate, slotbin, slotwhere),
     foreign key (id) references doodleuser(id)
 );
 
+-- CREATE INDEX time_index ON doodle(to_date(slotdate, 'YYYY-MM-DD'));
 select b.*, a.id, a.checked from userindoodle a join doodle b on (a.slotdate = b.slotdate and a.slotbin = b.slotbin and a.slotwhere = b.slotwhere);
 select * from doodle;
 select * from doodleuser;
 UPDATE userindoodle SET checked='true' WHERE id='foo.bar@gmail.com' AND slotbin='PM' AND slotwhere='PED' AND slotdate='2022-08-01';
+select a.*, coalesce(b.checked, 'false') as checked
+from
+    (
+        select d.*, u.id
+        from doodle d, doodleuser u
+        where to_date(d.slotdate, 'YYYY-MM-DD') between (to_date(d.slotdate, 'YYYY-MM-DD') - interval '1 month') and (to_date(d.slotdate, 'YYYY-MM-DD') + interval '1 month')
+    ) a left outer join userindoodle b on (a.id = b.id and a.slotdate = b.slotdate and a.slotbin = b.slotbin and a.slotwhere = b.slotwhere)

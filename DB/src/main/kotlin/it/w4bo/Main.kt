@@ -72,7 +72,8 @@ fun getConn(): Connection {
 
 fun updateDoodle(turni: JSONArray) {
     val con = getConn()
-    val prepStmt = con.prepareStatement("""UPDATE userindoodle SET checked=? WHERE id=? AND slotbin=? AND slotwhere=? AND slotdate=?""")
+    val prepStmt = con.prepareStatement("""INSERT INTO userindoodle (checked, id, slotbin, slotwhere, slotdate) values (?, ?, ?, ?, ?) ON CONFLICT (id, slotdate, slotbin, slotwhere) DO UPDATE SET checked = EXCLUDED.checked""")
+    // val prepStmt = con.prepareStatement("""UPDATE userindoodle SET checked=? WHERE id=? AND slotbin=? AND slotwhere=? AND slotdate=?""")
     turni.forEach {
         val o = it as JSONObject
         println(o)
@@ -90,31 +91,34 @@ fun updateDoodle(turni: JSONArray) {
     }
     prepStmt.executeBatch()
     prepStmt.close()
+
+    val stmt = con.createStatement()
+    stmt.execute("delete from userindoodle where checked = 'false'")
+    stmt.close()
     con.close()
 }
 
 fun writeUser(id: String, firstname: String?, lastname: String?, role: String?) {
     val con = getConn()
-    var prepStmt = con.prepareStatement("""INSERT INTO doodleuser VALUES ('$id', '$firstname', '$lastname', '$role')""")
+    val prepStmt = con.prepareStatement("""INSERT INTO doodleuser VALUES ('$id', '$firstname', '$lastname', '$role')""")
     prepStmt.execute()
     prepStmt.close()
-
-    prepStmt = con.prepareStatement("INSERT INTO userindoodle VALUES (?, ?, ?, ?, ?)")
-    val rs: ResultSet = con.createStatement().executeQuery("select * from doodle")
-    while (rs.next()) {
-        val slotdate = rs.getString("slotdate")
-        val slotbin = rs.getString("slotbin")
-        val slotwhere = rs.getString("slotwhere")
-        prepStmt.setString(1, id)
-        prepStmt.setString(2, slotdate)
-        prepStmt.setString(3, slotbin)
-        prepStmt.setString(4, slotwhere)
-        prepStmt.setString(5, "false")
-        prepStmt.addBatch()
-    }
-    prepStmt.executeBatch()
-    rs.close()
-    prepStmt.close()
+    // prepStmt = con.prepareStatement("INSERT INTO userindoodle VALUES (?, ?, ?, ?, ?)")
+    // val rs: ResultSet = con.createStatement().executeQuery("select * from doodle")
+    // while (rs.next()) {
+    //     val slotdate = rs.getString("slotdate")
+    //     val slotbin = rs.getString("slotbin")
+    //     val slotwhere = rs.getString("slotwhere")
+    //     prepStmt.setString(1, id)
+    //     prepStmt.setString(2, slotdate)
+    //     prepStmt.setString(3, slotbin)
+    //     prepStmt.setString(4, slotwhere)
+    //     prepStmt.setString(5, "false")
+    //     prepStmt.addBatch()
+    // }
+    // prepStmt.executeBatch()
+    // rs.close()
+    // prepStmt.close()
     con.close()
 }
 

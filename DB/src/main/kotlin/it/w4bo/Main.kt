@@ -23,6 +23,7 @@ class Doodle {
     var week: List<Day> = mutableListOf()
     var from: String = ""
     var to: String = ""
+    val token: String = ""
     override fun toString(): String {
         return "{from: $from, to: $to, weeks: [${week.map { it.toString() }.reduce { a, b -> "$a, $b" }}]}"
     }
@@ -37,7 +38,7 @@ class Doodles {
 
 fun getResourceAsText(path: String) = object {}.javaClass.getResource(path)
 
-fun getTurni(): JSONArray {
+fun getTurni(token: String, date: String = "now()"): JSONArray {
     val json = JSONArray()
     val con = getConn()
     // val query = "select b.*, a.id, a.checked from userindoodle a join doodle b on (a.slotdate = b.slotdate and a.slotbin = b.slotbin and a.slotwhere = b.slotwhere) order by slotdate, slotwhere, slotbin, id"
@@ -47,8 +48,8 @@ fun getTurni(): JSONArray {
                     (
                         select d.*, u.id
                         from doodle d, doodleuser u
-                        where to_date(d.slotdate, 'YYYY-MM-DD') between (now() - interval '1 month') and (now() + interval '1 month')
-                    ) a left outer join userindoodle b on (a.id = b.id and a.slotdate = b.slotdate and a.slotbin = b.slotbin and a.slotwhere = b.slotwhere)
+                        where d.token = '$token' and d.token = u.token and to_date(d.slotdate, 'YYYY-MM-DD') between ($date - interval '1 month') and ($date + interval '1 month')
+                    ) a left outer join userindoodle b on (a.token = b.d_token and a.id = b.id and a.slotdate = b.slotdate and a.slotbin = b.slotbin and a.slotwhere = b.slotwhere)
                 order by slotdate, slotwhere, slotbin, id
                 """.trimIndent().replace("\\s+".toRegex(), " ")
     // create the java statement
@@ -106,21 +107,23 @@ fun getConn(): Connection {
 
 fun updateDoodle(turni: JSONArray) {
     val con = getConn()
-    val prepStmt = con.prepareStatement("""INSERT INTO userindoodle (checked, id, slotbin, slotwhere, slotdate) values (?, ?, ?, ?, ?) ON CONFLICT (id, slotdate, slotbin, slotwhere) DO UPDATE SET checked = EXCLUDED.checked""")
+    val prepStmt = con.prepareStatement("""INSERT INTO userindoodle (checked, id, slotbin, slotwhere, slotdate, u_token, d_token) values (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id, slotdate, slotbin, slotwhere, u_token) DO UPDATE SET checked = EXCLUDED.checked""")
     // val prepStmt = con.prepareStatement("""UPDATE userindoodle SET checked=? WHERE id=? AND slotbin=? AND slotwhere=? AND slotdate=?""")
     turni.forEach {
         val o = it as JSONObject
-        println(o)
         val id: String = o.getString("id")
         val slotdate: String = o.getString("slotdate")
         val slotbin: String = o.getString("slotbin")
         val slotwhere: String = o.getString("slotwhere")
         val checked: Boolean = o.getBoolean("checked")
+        val token: String = o.getString("token")
         prepStmt.setString(1, "" + checked)
         prepStmt.setString(2, id)
         prepStmt.setString(3, slotbin)
         prepStmt.setString(4, slotwhere)
         prepStmt.setString(5, slotdate)
+        prepStmt.setString(6, token)
+        prepStmt.setString(7, token)
         prepStmt.addBatch()
     }
     prepStmt.executeBatch()
@@ -132,9 +135,9 @@ fun updateDoodle(turni: JSONArray) {
     con.close()
 }
 
-fun writeUser(id: String, firstname: String?, lastname: String?, role: String?) {
+fun writeUser(id: String, firstname: String?, lastname: String?, role: String?, token: String) {
     val con = getConn()
-    val prepStmt = con.prepareStatement("""INSERT INTO doodleuser VALUES ('$id', '$firstname', '$lastname', '$role')""")
+    val prepStmt = con.prepareStatement("""INSERT INTO doodleuser VALUES ('$id', '$firstname', '$lastname', '$token', '$role')""")
     prepStmt.execute()
     prepStmt.close()
     // prepStmt = con.prepareStatement("INSERT INTO userindoodle VALUES (?, ?, ?, ?, ?)")
@@ -156,9 +159,9 @@ fun writeUser(id: String, firstname: String?, lastname: String?, role: String?) 
     con.close()
 }
 
-fun removeUser(id: String) {
+fun removeUser(id: String, token: String) {
     val con = getConn()
-    val prepStmt = con.prepareStatement("""DELETE FROM doodleuser where id = '$id'""")
+    val prepStmt = con.prepareStatement("""DELETE FROM doodleuser where id = '$id' and token = '$token'""")
     prepStmt.execute()
     prepStmt.close()
     con.close()
@@ -167,7 +170,7 @@ fun removeUser(id: String) {
 fun writeTurni() {
     val doodles = getDoodles()
     val con = getConn()
-    val prepStmt = con.prepareStatement("INSERT INTO doodle VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+    val prepStmt = con.prepareStatement("INSERT INTO doodle VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
     val formatter = SimpleDateFormat("yyyy-MM-dd")
     val today = formatter.format(Date())
     doodles.doodles.forEach { doodle ->
@@ -199,6 +202,7 @@ fun writeTurni() {
                     prepStmt.setString(7, doodleday.where)
                     prepStmt.setString(8, dayWeek)
                     prepStmt.setString(9, today)
+                    prepStmt.setString(10, doodle.token)
                     prepStmt.addBatch()
                 }
             }

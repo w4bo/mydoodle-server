@@ -19,7 +19,7 @@ class IAMServlet : HttpServlet() {
 
     @Throws(ServletException::class)
     override fun doGet(request: HttpServletRequest, response: HttpServletResponse) {
-        write(response, getTurni().toString())
+        write(response, getTurni(request.getParameter("token")).toString())
     }
 
     @Throws(ServletException::class)
@@ -29,7 +29,7 @@ class IAMServlet : HttpServlet() {
                 val s = request.getParameter("turni").replace("%40", "@").replace("%5B", "[").replace("%5D", "]").replace("%7B", "{").replace("%7D", "}")
                 updateDoodle(JSONArray(s))
             } else {
-                writeUser(request.getParameter("id"), request.getParameter("firstname"), request.getParameter("last"), "user")
+                writeUser(request.getParameter("id"), request.getParameter("firstname"), request.getParameter("last"), "user", request.getParameter("token"))
             }
             write(response, JSONObject().toString())
         } catch (e: Exception) {

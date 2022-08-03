@@ -42,3 +42,48 @@ doodles:
           where: PED
       from: 2021-12-01
       to: 2023-01-31
+      token: ATsMdSxyZP
+    -
+      week:
+        - weekDay: Mon
+          bin: AM
+          where: PED
+        - weekDay: Mon
+          bin: PM
+          where: PED
+        - weekDay: Tue
+          bin: AM
+          where: PED
+        - weekDay: Tue
+          bin: PM
+          where: PED
+        - weekDay: Wed
+          bin: AM
+          where: PED
+        - weekDay: Wed
+          bin: PM
+          where: PED
+        - weekDay: Thu
+          bin: AM
+          where: PED
+        - weekDay: Fri
+          bin: AM
+          where: PED
+        - weekDay: Fri
+          bin: PM
+          where: PED
+        - weekDay: Sat
+          bin: AM
+          where: PED
+        - weekDay: Sat
+          bin: PM
+          where: PED
+        - weekDay: Sun
+          bin: AM
+          where: PED
+        - weekDay: Sun
+          bin: PM
+          where: PED
+      from: 2022-08-01
+      to: 2022-08-07
+      token: ATsMdSxyZPa

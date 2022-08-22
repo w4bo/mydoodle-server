@@ -46,7 +46,7 @@ jobs:
           heroku_app_name: ${{secrets.HEROKU_APP_NAME}}
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           justlogin: true
-      - run:
+      - run: |
           cd DB
           heroku builds:cancel -a ${{secrets.HEROKU_APP_NAME}}
           heroku restart -a ${{secrets.HEROKU_APP_NAME}}

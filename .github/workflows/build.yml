@@ -52,6 +52,8 @@ jobs:
           justlogin: true
       - run: |
           cd DB
+          chmod +x init.sh
+          ./init.sh
           cat .env
           ./gradlew war
           heroku builds:cancel -a ${{secrets.HEROKU_APP_NAME}}

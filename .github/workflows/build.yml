@@ -21,6 +21,7 @@ jobs:
       - name: Test Kotlin
         run: |
           cd DB
+          chmod +x init.sh
           ./init.sh
           docker-compose up &
           ./gradlew --stacktrace --scan
@@ -47,4 +48,6 @@ jobs:
           justlogin: true
       - run:
           cd DB
+          heroku builds:cancel -a ${{secrets.HEROKU_APP_NAME}}
+          heroku restart -a ${{secrets.HEROKU_APP_NAME}}
           heroku war:deploy build/libs/MyDoodle.war --app ${{secrets.HEROKU_APP_NAME}}

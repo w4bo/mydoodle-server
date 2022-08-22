@@ -58,7 +58,7 @@ jobs:
           justlogin: true
       - run: |
           cd DB
-          cat .env
+          cp .env src/main/resources/.env
           ./gradlew war
           heroku plugins:install heroku-cli-deploy
           heroku plugins:install heroku-builds

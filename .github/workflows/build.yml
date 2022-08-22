@@ -58,6 +58,8 @@ jobs:
           cd DB
           cat .env
           ./gradlew war
+          heroku plugins:install heroku-cli-deploy
+          heroku plugins:install heroku-builds
           heroku builds:cancel -a ${{ secrets.HEROKU_APP_NAME }}
           heroku restart -a ${{ secrets.HEROKU_APP_NAME }}
           heroku war:deploy build/libs/MyDoodle.war --app ${{ secrets.HEROKU_APP_NAME }}

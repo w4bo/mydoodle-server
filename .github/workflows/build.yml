@@ -32,30 +32,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Create .env file
-        uses: ozaytsev86/create-env-file@v1
+      - run: |
+          cd DB
+          chmod +x init.sh
+          ./init.sh
+      - name: Update the .env file
+        uses: SpicyPizza/create-envfile@v1.3.0
         with:
-          ENV_POSTGRES_IP: ${{ secrets.POSTGRES_IP }}
-          ENV_POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-          ENV_POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          ENV_POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          ENV_POSTGRES_PWD: ${{ secrets.POSTGRES_PWD }}
+          envkey_POSTGRES_IP: ${{ secrets.POSTGRES_IP }}
+          envkey_POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+          envkey_POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          envkey_POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          envkey_POSTGRES_PWD: ${{ secrets.POSTGRES_PWD }}
       - uses: actions/setup-java@v2.5.0
         with:
           distribution: 'adopt'
           java-version: '14'
       - uses: akhileshns/heroku-deploy@v3.12.12
         with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: ${{secrets.HEROKU_APP_NAME}}
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
           justlogin: true
       - run: |
           cd DB
-          chmod +x init.sh
-          ./init.sh
           cat .env
           ./gradlew war
-          heroku builds:cancel -a ${{secrets.HEROKU_APP_NAME}}
-          heroku restart -a ${{secrets.HEROKU_APP_NAME}}
-          heroku war:deploy build/libs/MyDoodle.war --app ${{secrets.HEROKU_APP_NAME}}
+          heroku builds:cancel -a ${{ secrets.HEROKU_APP_NAME }}
+          heroku restart -a ${{ secrets.HEROKU_APP_NAME }}
+          heroku war:deploy build/libs/MyDoodle.war --app ${{ secrets.HEROKU_APP_NAME }}

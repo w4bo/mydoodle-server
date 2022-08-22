@@ -40,6 +40,10 @@ jobs:
           ENV_POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           ENV_POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           ENV_POSTGRES_PWD: ${{ secrets.POSTGRES_PWD }}
+      - uses: actions/setup-java@v2.5.0
+        with:
+          distribution: 'adopt'
+          java-version: '14'
       - uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
@@ -48,6 +52,8 @@ jobs:
           justlogin: true
       - run: |
           cd DB
+          cat .env
+          ./gradlew war
           heroku builds:cancel -a ${{secrets.HEROKU_APP_NAME}}
           heroku restart -a ${{secrets.HEROKU_APP_NAME}}
           heroku war:deploy build/libs/MyDoodle.war --app ${{secrets.HEROKU_APP_NAME}}

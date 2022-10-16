@@ -3,6 +3,7 @@
 package it.unibo.web
 
 import it.w4bo.getTurni
+import it.w4bo.getTurniFatti
 import it.w4bo.updateDoodle
 import it.w4bo.writeUser
 import org.json.JSONArray
@@ -19,7 +20,13 @@ class IAMServlet : HttpServlet() {
 
     @Throws(ServletException::class)
     override fun doGet(request: HttpServletRequest, response: HttpServletResponse) {
-        write(response, getTurni(request.getParameter("token")).toString())
+        if (request.getParameter("monthly") != null) {
+            write(response, getTurniFatti(request.getParameter("token"), true))
+        } else if (request.getParameter("weekly") != null) {
+            write(response, getTurniFatti(request.getParameter("token"), false))
+        } else {
+            write(response, getTurni(request.getParameter("token")).toString())
+        }
     }
 
     @Throws(ServletException::class)
@@ -28,10 +35,10 @@ class IAMServlet : HttpServlet() {
             if (request.getParameter("cmd") == "update") {
                 val s = request.getParameter("turni").replace("%40", "@").replace("%5B", "[").replace("%5D", "]").replace("%7B", "{").replace("%7D", "}")
                 updateDoodle(JSONArray(s))
+                write(response, JSONObject().toString())
             } else {
-                writeUser(request.getParameter("id"), request.getParameter("firstname"), request.getParameter("last"), "user", request.getParameter("token"))
+                write(response, writeUser(request.getParameter("id"), request.getParameter("firstname"), request.getParameter("last"), "user", request.getParameter("token")))
             }
-            write(response, JSONObject().toString())
         } catch (e: Exception) {
             e.printStackTrace()
             val res = JSONObject()

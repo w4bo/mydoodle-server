@@ -25,7 +25,7 @@ class SampleTest {
                 turni.put(turno)
                 updateDoodle(turni)
                 assertTrue(!getTurni(token, date = "to_date('2022-08-01', 'YYYY-MM-DD')").isEmpty)
-                writeUser("barz@gmail.com", "C", "D", "admin", token)
+                println(writeUser("barz@gmail.com", "C", "D", "admin", token))
             }
             tokens.forEach { token ->
                 removeUser("barz@gmail.com", token)
@@ -35,5 +35,11 @@ class SampleTest {
             e.printStackTrace()
             fail()
         }
+    }
+
+    @Test
+    fun turniFatti() {
+        getTurniFatti("ATsMdSxyZP", monthly = true)
+        getTurniFatti("ATsMdSxyZP", monthly = false)
     }
 }

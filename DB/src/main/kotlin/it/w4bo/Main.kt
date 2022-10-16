@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.Date
 
+
 class Day {
     val weekDay: String = ""
     val bin: String = ""
@@ -38,6 +39,77 @@ class Doodles {
 
 fun getResourceAsText(path: String) = object {}.javaClass.getResource(path)
 
+fun getTurniFatti(token: String, monthly: Boolean): String {
+    val cal: Calendar = GregorianCalendar(Locale.GERMANY)
+    val today = Date()
+    cal.time = today
+
+    fun getResult(token: String, monthly: Boolean, current: Boolean): Pair<String, Int> {
+        val week = cal[Calendar.WEEK_OF_YEAR] + (if (current) 1 else 2)
+        val month = cal[Calendar.MONTH] + (if (current) 1 else 2)
+        val con = getConn()
+        val query =
+            """
+            select concat_ws(' ', '-', slotdate, weekdayname, slotwhere, slotbin, id, case when count = 1 then '(turno solitario)' else '' end)
+            from (
+            	select string_agg(concat_ws(' ', a.firstname, a.lastname), ', ') as id, b.slotdate, b.slotbin, b.slotwhere, c.weekdayname, count(*) as count
+            	from doodleuser a, userindoodle b, doodle c
+            	where ${if (monthly) "c.slotmonth = $month" else "c.weekyear = $week"} and a.token = '$token' and a.token = b.u_token and b.d_token = c.token and a.id = b.id and b.slotdate = c.slotdate and b.slotbin = c.slotbin and b.slotwhere = c.slotwhere
+            	group by b.slotdate, b.slotbin, b.slotwhere, c.weekdayname
+                ${if (monthly || current) "having count(*) > 1" else ""}
+            ) a
+            order by 1 asc;
+        """.trimIndent()
+        // create the java statement
+        val st: Statement = con.createStatement()
+        // execute the query, and get a java resultset
+        val rs: ResultSet = st.executeQuery(query)
+        var res = ""
+        var count = 0
+        while (rs.next()) {
+            val turno = rs.getString(1)
+            res += "${turno}\n"
+            count += if (turno.contains("solitario")) 0 else 1
+        }
+        res = res
+            .replace("Mon", "Lun")
+            .replace("Tue", "Mar")
+            .replace("Wed", "Mer")
+            .replace("Thu", "Gio")
+            .replace("Fri", "Ven")
+            .replace("Sat", "Sab")
+            .replace("Sun", "Dom")
+        rs.close()
+        st.close()
+        con.close()
+        return Pair(res, count)
+    }
+
+    val turni = getResult(token, monthly, monthly)
+    var result = """Ciao Nasi!
+        
+        Turni ${if (monthly) "mensili" else "della prossima settimana"}: ${turni.second}
+        ${turni.first}
+    """
+    result += if (monthly) {
+        """
+        Chi ha fatto almeno un turno deve:
+        - Confermare la correttezza rispondendo a questa e-mail
+        - Inviare il RIMBORSO KM ed eventuale RIMBORSO SCONTRINO
+        """
+    } else {
+        """
+        Turni della settimana corrente:
+        ${getResult(token, monthly, true).first}
+        
+        Se i turni non sono corretti, aggiornate il doodle!
+        """
+    }
+    result = result.trimIndent().replace("[^\\S\\r\\n]+".toRegex(), " ").replace("\\n\\s".toRegex(), "\n")
+    println(result)
+    return result
+}
+
 fun getTurni(token: String, date: String = "now()"): JSONArray {
     val json = JSONArray()
     val con = getConn()
@@ -62,8 +134,8 @@ fun getTurni(token: String, date: String = "now()"): JSONArray {
         val numColumns: Int = rsmd.getColumnCount()
         val obj = JSONObject()
         for (i in 1..numColumns) {
-            val column_name: String = rsmd.getColumnName(i)
-            obj.put(column_name, rs.getObject(column_name))
+            val columnName: String = rsmd.getColumnName(i)
+            obj.put(columnName, rs.getObject(columnName))
         }
         json.put(obj)
     }
@@ -135,28 +207,29 @@ fun updateDoodle(turni: JSONArray) {
     con.close()
 }
 
-fun writeUser(id: String, firstname: String?, lastname: String?, role: String?, token: String) {
+fun writeUser(id: String, firstname: String?, lastname: String?, role: String?, token: String): String {
     val con = getConn()
     val prepStmt = con.prepareStatement("""INSERT INTO doodleuser VALUES ('$id', '$firstname', '$lastname', '$token', '$role')""")
     prepStmt.execute()
     prepStmt.close()
-    // prepStmt = con.prepareStatement("INSERT INTO userindoodle VALUES (?, ?, ?, ?, ?)")
-    // val rs: ResultSet = con.createStatement().executeQuery("select * from doodle")
-    // while (rs.next()) {
-    //     val slotdate = rs.getString("slotdate")
-    //     val slotbin = rs.getString("slotbin")
-    //     val slotwhere = rs.getString("slotwhere")
-    //     prepStmt.setString(1, id)
-    //     prepStmt.setString(2, slotdate)
-    //     prepStmt.setString(3, slotbin)
-    //     prepStmt.setString(4, slotwhere)
-    //     prepStmt.setString(5, "false")
-    //     prepStmt.addBatch()
-    // }
-    // prepStmt.executeBatch()
-    // rs.close()
-    // prepStmt.close()
+
+    val query = """select a.id, a.firstname, a.lastname from doodleuser a where id = '$id' and token = '$token'"""
+    val st: Statement = con.createStatement()
+    val rs: ResultSet = st.executeQuery(query)
+    val rsmd: ResultSetMetaData = rs.metaData
+    val obj = JSONObject()
+    while (rs.next()) {
+        val numColumns: Int = rsmd.columnCount
+        for (i in 1..numColumns) {
+            val columnName: String = rsmd.getColumnName(i)
+            obj.put(columnName, rs.getObject(columnName))
+        }
+        break
+    }
+    rs.close()
+    st.close()
     con.close()
+    return obj.toString()
 }
 
 fun removeUser(id: String, token: String) {

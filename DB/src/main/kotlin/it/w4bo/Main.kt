@@ -96,6 +96,11 @@ fun getTurniFatti(token: String, monthly: Boolean): String {
         Chi ha fatto almeno un turno deve:
         - Confermare la correttezza rispondendo a questa e-mail
         - Inviare il RIMBORSO KM ed eventuale RIMBORSO SCONTRINO
+        
+        PS.
+        - Mantenete il doodle aggiornato (e.g., quando salta un turno)
+        - Modificate il doodle *senza* duplicare le vostre votazioni (e.g.,
+        quando cancellate/aggiungete turni)
         """
     } else {
         """

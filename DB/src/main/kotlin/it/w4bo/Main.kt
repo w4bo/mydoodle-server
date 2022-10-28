@@ -214,7 +214,7 @@ fun updateDoodle(turni: JSONArray) {
 
 fun writeUser(id: String, firstname: String?, lastname: String?, role: String?, token: String): String {
     val con = getConn()
-    val prepStmt = con.prepareStatement("""INSERT INTO doodleuser VALUES ('$id', '$firstname', '$lastname', '$token', '$role')""")
+    val prepStmt = con.prepareStatement("""INSERT INTO doodleuser VALUES ('$id', '${firstname ?: id}', '${lastname ?: ""}', '$token', '$role')""")
     prepStmt.execute()
     prepStmt.close()
 

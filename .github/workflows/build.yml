@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3.2.0
-      - uses: actions/setup-java@v3.8.0
+      - uses: actions/setup-java@v3.9.0
         with:
           distribution: 'adopt'
           java-version: '14'
@@ -46,7 +46,7 @@ jobs:
           envkey_POSTGRES_PWD: ${{ secrets.POSTGRES_PWD }}
           directory: DB
           file_name: .env
-      - uses: actions/setup-java@v3.8.0
+      - uses: actions/setup-java@v3.9.0
         with:
           distribution: 'adopt'
           java-version: '14'

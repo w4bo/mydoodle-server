@@ -10,8 +10,8 @@ class SampleTest {
     @Test
     fun test01() {
         try {
-            val tokens = listOf("ATsMdSxyZP", "ATsMdSxyZPa")
             writeTurni()
+            val tokens = listOf("ATsMdSxyZPa")
             tokens.forEach { token ->
                 writeUser("foo.bar@gmail.com", "A", "B", "admin", token)
                 val turni = JSONArray()

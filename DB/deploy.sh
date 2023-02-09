@@ -10,6 +10,6 @@ if [ -f .env ]; then
 fi
 
 ./gradlew clean war
-rm -rf "${TOMCAT_PATH}\MyDoodle"
-cp build/libs/MyDoodle.war "${TOMCAT_PATH}\webapps"
+rm -rf "${TOMCAT_PATH}/${ARTIFACT}"
+cp "build/libs/${ARTIFACT}.war" "${TOMCAT_PATH}"
 echo "Done."

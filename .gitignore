@@ -8,6 +8,7 @@ test/e2e/reports
 selenium-debug.log
 auth0-variables.js
 .env
+.env.deploy
 auth_config.json
 .idea
 

@@ -5,45 +5,12 @@ services:
     image: postgres:15.1
     restart: always
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PWD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - "POSTGRES_USER=${POSTGRES_USER}"
+      - "POSTGRES_PASSWORD=${POSTGRES_PWD}"
+      - "POSTGRES_DB=${POSTGRES_DB}"
     ports:
       - '5432:5432'
     volumes:
-      # - ./postgres-data:/var/lib/postgresql/data
       - ./src/main/resources/schema-postgres.sql:/docker-entrypoint-initdb.d/create_tables.sql
-
-  # Image of the MySQL database
-  # mysql:
-  #   image: mysql:5.7
-  #   hostname: mysql
-  #   container_name: mysql
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: ${MYSQL_PWD}
-  #     MYSQL_TCP_PORT: ${MYSQL_PORT}
-  #   expose:
-  #     - ${MYSQL_PORT}
-  #   ports:
-  #     - "${MYSQL_PORT}:${MYSQL_PORT}"
-  #   healthcheck:
-  #     test: [ "CMD", "mysqldmin", "ping", "-h", "localhost" ]
-  #     timeout: 5s
-  #     retries: 10
-  #   networks:
-  #     - default
-
-  # Populate the MySQL database when the database is ready (i.e., is healthy)
-  # mysql-seed:
-  #   hostname: mysql-seed
-  #   container_name: mysql-seed
-  #   image: mysql:8.0
-  #   depends_on:
-  #     mysql:
-  #       condition: service_healthy
-  #   volumes:
-  #     - ./src/main/resources/:/data
-  #   command: >
-  #     /bin/bash -c "mysql -hmysql -u${MYSQL_USER} -P${MYSQL_PORT} -p${MYSQL_PWD} < /data/schema-mysql.sql"
-  #   networks:
-  #     - default
+    env_file:
+      - .env

@@ -46,21 +46,22 @@ fun getTurniFatti(token: String, monthly: Boolean): String {
 
     fun getResult(token: String, monthly: Boolean, current: Boolean): Pair<String, Int> {
         val year = cal[Calendar.YEAR]
-        val week = cal[Calendar.WEEK_OF_YEAR] + (if (current) 1 else 2)
+        val week = "to_date(c.slotdate, 'YYYY-MM-DD') between CURRENT_DATE ${if(current) "-7" else ""} and CURRENT_DATE ${if(current) "" else "+7"}"
         val month = cal[Calendar.MONTH] + (if (current) 1 else 2)
         val con = getConn()
         val query =
             """
             select concat_ws(' ', '-', slotdate, weekdayname, slotwhere, slotbin, id, case when count = 1 then '(turno solitario)' else '' end)
             from (
-            	select string_agg(concat_ws(' ', a.firstname, a.lastname), ', ') as id, b.slotdate, b.slotbin, b.slotwhere, c.weekdayname, count(*) as count
-            	from doodleuser a, userindoodle b, doodle c
-            	where ${if (monthly) "c.slotmonth = $month" else "c.weekyear = $week"} and (c.slotyear = $year or c.slotyear = $year + 1) and a.token = '$token' and a.token = b.u_token and b.d_token = c.token and a.id = b.id and b.slotdate = c.slotdate and b.slotbin = c.slotbin and b.slotwhere = c.slotwhere
-            	group by b.slotdate, b.slotbin, b.slotwhere, c.weekdayname
+                select string_agg(concat_ws(' ', a.firstname, a.lastname), ', ') as id, b.slotdate, b.slotbin, b.slotwhere, c.weekdayname, count(*) as count
+                from doodleuser a, userindoodle b, doodle c
+                where ${if (monthly) "c.slotmonth = $month" else week} and (c.slotyear = $year or c.slotyear = $year + 1) and a.token = '$token' and a.token = b.u_token and b.d_token = c.token and a.id = b.id and b.slotdate = c.slotdate and b.slotbin = c.slotbin and b.slotwhere = c.slotwhere
+                group by b.slotdate, b.slotbin, b.slotwhere, c.weekdayname
                 ${if (monthly || current) "having count(*) > 1" else ""}
             ) a
             order by 1 asc;
         """.trimIndent()
+        println(query)
         // create the java statement
         val st: Statement = con.createStatement()
         // execute the query, and get a java resultset

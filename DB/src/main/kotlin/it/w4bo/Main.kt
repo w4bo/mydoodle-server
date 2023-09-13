@@ -40,7 +40,7 @@ class Doodles {
 fun getResourceAsText(path: String) = object {}.javaClass.getResource(path)
 
 fun getTurniFatti(token: String, monthly: Boolean): String {
-    val cal: Calendar = GregorianCalendar(Locale.GERMANY)
+    val cal: Calendar = GregorianCalendar(Locale.ITALY)
     val today = Date()
     cal.time = today
 
@@ -169,12 +169,6 @@ fun getCalendarWithoutTime(date: Date): Calendar {
 
 fun getConn(): Connection {
     val dotenv = dotenv()
-    // Class.forName("com.mysql.jdbc.Driver").newInstance()
-    // return DriverManager.getConnection(
-    //     "jdbc:mysql://${dotenv["MYSQL_IP"]}:${dotenv["MYSQL_PORT"]}/${dotenv["MYSQL_DB"]}",
-    //     dotenv["MYSQL_USER"],
-    //     dotenv["MYSQL_PWD"]
-    // )
     Class.forName("org.postgresql.Driver").newInstance()
     return DriverManager.getConnection(
         "jdbc:postgresql://${dotenv["POSTGRES_IP"]}:${dotenv["POSTGRES_PORT"]}/${dotenv["POSTGRES_DB"]}",

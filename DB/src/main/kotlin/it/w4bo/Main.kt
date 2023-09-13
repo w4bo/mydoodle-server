@@ -173,7 +173,7 @@ fun getConn(): Connection {
     return DriverManager.getConnection(
         "jdbc:postgresql://${dotenv["POSTGRES_IP"]}:${dotenv["POSTGRES_PORT"]}/${dotenv["POSTGRES_DB"]}",
         dotenv["POSTGRES_USER"],
-        dotenv["POSTGRES_PWD"]
+        dotenv["POSTGRES_PASSWORD"]
     )
 }
 

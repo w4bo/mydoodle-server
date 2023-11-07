@@ -7,10 +7,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.3.0
-      - uses: actions/setup-java@v3.9.0
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/setup-java@v3.13.0
         with:
           distribution: 'adopt'
           java-version: '14'
@@ -25,43 +25,3 @@ jobs:
           ./init.sh
           docker-compose up &
           ./gradlew --stacktrace --scan
-  release:
-    needs:
-      - build
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - run: |
-          cd DB
-          chmod +x init.sh
-          ./init.sh
-      - name: Update the .env file
-        uses: SpicyPizza/create-envfile@v1.3.1
-        with:
-          envkey_POSTGRES_IP: ${{ secrets.POSTGRES_IP }}
-          envkey_POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-          envkey_POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          envkey_POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          envkey_POSTGRES_PWD: ${{ secrets.POSTGRES_PWD }}
-          directory: DB
-          file_name: .env
-      - uses: actions/setup-java@v3.9.0
-        with:
-          distribution: 'adopt'
-          java-version: '14'
-      - uses: akhileshns/heroku-deploy@v3.12.12
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
-          justlogin: true
-      - run: |
-          cd DB
-          cp .env src/main/resources/.env
-          ./gradlew war
-          heroku plugins:install heroku-cli-deploy
-          heroku plugins:install heroku-builds
-          heroku builds:cancel -a ${{ secrets.HEROKU_APP_NAME }}
-          heroku restart -a ${{ secrets.HEROKU_APP_NAME }}
-          heroku war:deploy build/libs/MyDoodle.war --app ${{ secrets.HEROKU_APP_NAME }}

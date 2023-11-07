@@ -2,13 +2,11 @@ version: "3.9"
 
 services:
   postgres:
-    image: postgres:15.1
+    image: postgres:16.0
     restart: always
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PWD}
-      - POSTGRES_DB=${POSTGRES_DB}
     ports:
       - '5432:5432'
     volumes:
       - ./src/main/resources/schema-postgres.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    env_file:
+      - .env

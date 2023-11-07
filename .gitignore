@@ -10,6 +10,7 @@ auth0-variables.js
 .env
 auth_config.json
 .idea
+bin/
 
 # Created by https://www.toptal.com/developers/gitignore/api/gradle,windows,macos,linux,node,vuejs,java,kotlin,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=gradle,windows,macos,linux,node,vuejs,java,kotlin,python

@@ -23,6 +23,8 @@ class IAMServlet : HttpServlet() {
             write(response, getTurniFatti(request.getParameter("token"), type.WEEK))
         } else if (request.getParameter("yearly") != null) {
             write(response, getTurniFatti(request.getParameter("token"), type.YEAR))
+        } else if (request.getParameter("report") != null) {
+            write(response, getReport(request.getParameter("token")))
         } else {
             write(response, getTurni(request.getParameter("token")).toString())
         }

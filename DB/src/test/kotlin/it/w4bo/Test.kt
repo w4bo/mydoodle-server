@@ -51,4 +51,9 @@ class SampleTest {
     fun turniYear() {
         getTurniFatti("ATsMdSxyZP", quando = type.YEAR)
     }
+
+    @Test
+    fun report() {
+        getReport("ATsMdSxyZP")
+    }
 }

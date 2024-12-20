@@ -40,6 +40,56 @@ class Doodles {
 
 fun getResourceAsText(path: String) = object {}.javaClass.getResource(path)
 
+fun getReport(token: String): String {
+    val cal: Calendar = GregorianCalendar(Locale.ITALY)
+    val today = Date()
+    cal.time = today
+    val year = cal[Calendar.YEAR]
+
+    var query = """select distinct concat_ws(' ', a.firstname, a.lastname) from doodleuser a order by 1""".trimIndent()
+
+    println(query)
+    var con = getConn()
+    // create the java statement
+    val st: Statement = con.createStatement()
+    // execute the query, and get a java resultset
+    val rs: ResultSet = st.executeQuery(query)
+    var res = ""
+    while (rs.next()) {
+        val who = rs.getString(1)
+        res += "\n---\n$who\n"
+        val query = """
+            select concat_ws(' ', '-', /*id,*/ slotdate, weekdayname, slotbin)
+            from (
+                select string_agg(concat_ws(' ', a.firstname, a.lastname), ', ') as id, b.slotdate, b.slotbin, b.slotwhere, c.weekdayname, count(*) as count
+                from doodleuser a, userindoodle b, doodle c
+                where c.slotyear=$year and (c.slotyear = $year or c.slotyear = $year + 1) and a.token = '$token' and a.token = b.u_token and b.d_token = c.token and a.id = b.id and b.slotdate = c.slotdate and b.slotbin = c.slotbin and b.slotwhere = c.slotwhere
+                group by b.slotdate, b.slotbin, b.slotwhere, c.weekdayname
+                having count(*) > 1
+            ) a
+            where id like '%$who%'
+            order by 1 asc;
+        """.trimIndent()
+
+        // create the java statement
+        val st2: Statement = con.createStatement()
+        // execute the query, and get a java resultset
+        val rs2: ResultSet = st2.executeQuery(query)
+        while (rs2.next()) {
+            res+= rs2.getString(1) + "\n"
+        }
+    }
+    res = res.replace("Mon", "Lun")
+        .replace("Tue", "Mar")
+        .replace("Wed", "Mer")
+        .replace("Thu", "Gio")
+        .replace("Fri", "Ven")
+        .replace("Sat", "Sab")
+        .replace("Sun", "Dom")
+    print(res)
+    return res
+}
+
 fun getTurniFatti(token: String, quando: type): String {
     val cal: Calendar = GregorianCalendar(Locale.ITALY)
     val today = Date()

@@ -90,7 +90,7 @@ fun getReport(token: String): String {
             res += rs2.getString(1) + "\n"
             count += 1
         }
-        res += "\nTotale complessivo:\n\n|Turni|Km (0.50 €/km)|Totale (€)|\n|-|-|-|\n|$count|${count * km}|${(count * km * eurkm).roundToInt()}|\n\nIl sottoscritto socio dischiara che i dati espressi corrispondono a verità\n\nData: ${"$year-12-31" /*nowAsISO*/}\n\nFirma"
+        res += "\nTotale complessivo:\n\n|Turni|Km (0.50 Euro/km)|Totale (Euro)|\n|-|-|-|\n|$count|${count * km}|${(count * km * eurkm).roundToInt()}|\n\nIl sottoscritto socio dischiara che i dati espressi corrispondono a verità\n\nData: ${"$year-12-31" /*nowAsISO*/}\n\nFirma"
     }
     res = res.replace("Mon", "Lun")
         .replace("Tue", "Mar")

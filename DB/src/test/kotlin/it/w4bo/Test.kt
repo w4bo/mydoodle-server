@@ -38,8 +38,17 @@ class SampleTest {
     }
 
     @Test
-    fun turniFatti() {
-        getTurniFatti("ATsMdSxyZP", monthly = true)
-        getTurniFatti("ATsMdSxyZP", monthly = false)
+    fun turniWeek() {
+        getTurniFatti("ATsMdSxyZP", quando = type.WEEK)
+    }
+
+    @Test
+    fun turniMonth() {
+        getTurniFatti("ATsMdSxyZP", quando = type.MONTH)
+    }
+
+    @Test
+    fun turniYear() {
+        getTurniFatti("ATsMdSxyZP", quando = type.YEAR)
     }
 }

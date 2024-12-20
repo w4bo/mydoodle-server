@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.Date
 
+enum class type {WEEK, MONTH, YEAR}
 
 class Day {
     val weekDay: String = ""
@@ -39,25 +40,25 @@ class Doodles {
 
 fun getResourceAsText(path: String) = object {}.javaClass.getResource(path)
 
-fun getTurniFatti(token: String, monthly: Boolean): String {
+fun getTurniFatti(token: String, quando: type): String {
     val cal: Calendar = GregorianCalendar(Locale.ITALY)
     val today = Date()
     cal.time = today
 
-    fun getResult(token: String, monthly: Boolean, current: Boolean): Pair<String, Int> {
+    fun getResult(token: String, quando: type, current: Boolean): Pair<String, Int> {
         val year = cal[Calendar.YEAR]
         val week = "to_date(c.slotdate, 'YYYY-MM-DD') between CURRENT_DATE ${if(current) "-7" else ""} and CURRENT_DATE ${if(current) "" else "+7"}"
         val month = cal[Calendar.MONTH] + (if (current) 1 else 2)
         val con = getConn()
         val query =
             """
-            select concat_ws(' ', '-', slotdate, weekdayname, slotwhere, slotbin, id, case when count = 1 then '(turno solitario)' else '' end)
+            select concat_ws(' ', '-', slotdate, weekdayname/*, slotwhere*/, slotbin, id, case when count = 1 then '(turno solitario)' else '' end)
             from (
                 select string_agg(concat_ws(' ', a.firstname, a.lastname), ', ') as id, b.slotdate, b.slotbin, b.slotwhere, c.weekdayname, count(*) as count
                 from doodleuser a, userindoodle b, doodle c
-                where ${if (monthly) "c.slotmonth = $month" else week} and (c.slotyear = $year or c.slotyear = $year + 1) and a.token = '$token' and a.token = b.u_token and b.d_token = c.token and a.id = b.id and b.slotdate = c.slotdate and b.slotbin = c.slotbin and b.slotwhere = c.slotwhere
+                where ${if (quando == type.MONTH) "c.slotmonth = $month" else { if (quando==type.YEAR) "c.slotyear=$year" else week }} and (c.slotyear = $year or c.slotyear = $year + 1) and a.token = '$token' and a.token = b.u_token and b.d_token = c.token and a.id = b.id and b.slotdate = c.slotdate and b.slotbin = c.slotbin and b.slotwhere = c.slotwhere
                 group by b.slotdate, b.slotbin, b.slotwhere, c.weekdayname
-                ${if (monthly || current) "having count(*) > 1" else ""}
+                ${if (quando == type.MONTH || quando == type.YEAR || current) "having count(*) > 1" else ""}
             ) a
             order by 1 asc;
         """.trimIndent()
@@ -87,13 +88,13 @@ fun getTurniFatti(token: String, monthly: Boolean): String {
         return Pair(res, count)
     }
 
-    val turni = getResult(token, monthly, monthly)
+    val turni = getResult(token, quando, true)
     var result = """Ciao Nasi!
         
-        Turni ${if (monthly) "mensili" else "della prossima settimana"}: ${turni.second}
+        Turni ${if (quando == type.MONTH) "mensili" else if (quando == type.YEAR) "annuali" else "della prossima settimana"}: ${turni.second}
         ${turni.first}
     """
-    result += if (monthly) {
+    result += if (quando != type.WEEK) {
         """
         Chi ha fatto almeno un turno deve:
         - Confermare la correttezza rispondendo a questa e-mail
@@ -107,7 +108,7 @@ fun getTurniFatti(token: String, monthly: Boolean): String {
     } else {
         """
         Turni della settimana corrente:
-        ${getResult(token, monthly, true).first}
+        ${getResult(token, quando, true).first}
         
         Se i turni non sono corretti, aggiornate il doodle!
         """

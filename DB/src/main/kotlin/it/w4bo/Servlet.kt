@@ -2,10 +2,7 @@
 
 package it.unibo.web
 
-import it.w4bo.getTurni
-import it.w4bo.getTurniFatti
-import it.w4bo.updateDoodle
-import it.w4bo.writeUser
+import it.w4bo.*
 import org.json.JSONArray
 import org.json.JSONObject
 import javax.servlet.ServletException
@@ -21,9 +18,11 @@ class IAMServlet : HttpServlet() {
     @Throws(ServletException::class)
     override fun doGet(request: HttpServletRequest, response: HttpServletResponse) {
         if (request.getParameter("monthly") != null) {
-            write(response, getTurniFatti(request.getParameter("token"), true))
+            write(response, getTurniFatti(request.getParameter("token"), type.MONTH))
         } else if (request.getParameter("weekly") != null) {
-            write(response, getTurniFatti(request.getParameter("token"), false))
+            write(response, getTurniFatti(request.getParameter("token"), type.WEEK))
+        } else if (request.getParameter("yearly") != null) {
+            write(response, getTurniFatti(request.getParameter("token"), type.YEAR))
         } else {
             write(response, getTurni(request.getParameter("token")).toString())
         }

@@ -6,9 +6,12 @@ import io.github.cdimascio.dotenv.dotenv
 import org.json.JSONArray
 import org.json.JSONObject
 import java.sql.*
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.Date
+import kotlin.math.roundToInt
+
 
 enum class type {WEEK, MONTH, YEAR}
 
@@ -48,6 +51,11 @@ fun getReport(token: String): String {
 
     var query = """select distinct concat_ws(' ', a.firstname, a.lastname) from doodleuser a order by 1""".trimIndent()
 
+    val tz = TimeZone.getTimeZone("UTC")
+    val df: DateFormat = SimpleDateFormat("yyyy-MM-dd")
+    df.timeZone = tz
+    val nowAsISO = df.format(Date())
+
     println(query)
     var con = getConn()
     // create the java statement
@@ -57,9 +65,11 @@ fun getReport(token: String): String {
     var res = ""
     while (rs.next()) {
         val who = rs.getString(1)
-        res += "\n---\n$who\n"
+        val km = if (who.contains("Cavini")) 90 else 28
+        val eurkm = 0.5
+        res += "\n---$who---\n![](logo.png)\n\nIncarico al socio volontario\n\nNome e Cognome: $who\nMotivazione: Turni in Ospedale\nLuogo: Ospedale Bufalini\nCentro di Spesa: Nasi Rossi del Dottor Jumba\n\n|Descrizione|Km|Uscite|\n|-|-|-|\n"
         val query = """
-            select concat_ws(' ', '-', /*id,*/ slotdate, weekdayname, slotbin)
+            select concat('|', concat_ws('|', /*id,*/ slotdate/*, weekdayname, slotbin*/, '$km', '${(km * eurkm).roundToInt()}'), '|')
             from (
                 select string_agg(concat_ws(' ', a.firstname, a.lastname), ', ') as id, b.slotdate, b.slotbin, b.slotwhere, c.weekdayname, count(*) as count
                 from doodleuser a, userindoodle b, doodle c
@@ -75,9 +85,12 @@ fun getReport(token: String): String {
         val st2: Statement = con.createStatement()
         // execute the query, and get a java resultset
         val rs2: ResultSet = st2.executeQuery(query)
+        var count = 0
         while (rs2.next()) {
-            res+= rs2.getString(1) + "\n"
+            res += rs2.getString(1) + "\n"
+            count += 1
         }
+        res += "\nTotale complessivo:\n\n|Turni|Km (0.50 €/km)|Totale (€)|\n|-|-|-|\n|$count|${count * km}|${(count * km * eurkm).roundToInt()}|\n\nIl sottoscritto socio dischiara che i dati espressi corrispondono a verità\n\nData: ${"$year-12-31" /*nowAsISO*/}\n\nFirma"
     }
     res = res.replace("Mon", "Lun")
         .replace("Tue", "Mar")

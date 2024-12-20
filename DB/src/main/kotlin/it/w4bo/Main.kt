@@ -67,7 +67,7 @@ fun getReport(token: String): String {
         val who = rs.getString(1)
         val km = if (who.contains("Cavini")) 90 else 28
         val eurkm = 0.5
-        res += "\n---$who---\n![](logo.png)\n\nIncarico al socio volontario\n\nNome e Cognome: $who\nMotivazione: Turni in Ospedale\nLuogo: Ospedale Bufalini\nCentro di Spesa: Nasi Rossi del Dottor Jumba\n\n|Descrizione|Km|Uscite|\n|-|-|-|\n"
+        var cur = "\n---$who---\n![](logo.png)\n\nIncarico al socio volontario\n\nNome e Cognome: $who\nMotivazione: Turni in Ospedale\nLuogo: Ospedale Bufalini\nCentro di Spesa: Nasi Rossi del Dottor Jumba\n\n|Descrizione|Km|Uscite|\n|-|-|-|\n"
         val query = """
             select concat('|', concat_ws('|', /*id,*/ slotdate/*, weekdayname, slotbin*/, '$km', '${(km * eurkm).roundToInt()}'), '|')
             from (
@@ -87,10 +87,11 @@ fun getReport(token: String): String {
         val rs2: ResultSet = st2.executeQuery(query)
         var count = 0
         while (rs2.next()) {
-            res += rs2.getString(1) + "\n"
+            cur += rs2.getString(1) + "\n"
             count += 1
         }
-        res += "\nTotale complessivo:\n\n|Turni|Km (0.50 Euro/km)|Totale (Euro)|\n|-|-|-|\n|$count|${count * km}|${(count * km * eurkm).roundToInt()}|\n\nIl sottoscritto socio dischiara che i dati espressi corrispondono a verità\n\nData: ${"$year-12-31" /*nowAsISO*/}\n\nFirma"
+        cur += "\nTotale complessivo:\n\n|Turni|Km (0.50 Euro/km)|Totale (Euro)|\n|-|-|-|\n|$count|${count * km}|${(count * km * eurkm).roundToInt()}|\n\nIl sottoscritto socio dischiara che i dati espressi corrispondono a verità\n\nData: ${"$year-12-31" /*nowAsISO*/}\n\nFirma"
+        if (count > 0) res += cur
     }
     res = res.replace("Mon", "Lun")
         .replace("Tue", "Mar")

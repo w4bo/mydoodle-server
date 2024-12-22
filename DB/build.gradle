@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'org.jetbrains.kotlin.jvm' version '2.0.0'
+    id 'org.jetbrains.kotlin.jvm' version '2.1.0'
     id 'war'
 }
 
@@ -24,22 +24,22 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     // servlet
     implementation 'javax:javaee-api:8.0.1'
-    implementation 'org.postgresql:postgresql:42.7.3'
+    implementation 'org.postgresql:postgresql:42.7.4'
     implementation 'mysql:mysql-connector-java:8.0.33'
     implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
     implementation 'org.apache.commons:commons-csv:1.11.0'
     implementation 'org.apache.commons:commons-lang3:3.15.0'
     implementation 'commons-io:commons-io:2.16.1'
-    implementation 'io.github.cdimascio:dotenv-kotlin:6.4.1'
-    implementation 'org.slf4j:slf4j-api:2.0.13'
-    implementation 'org.slf4j:slf4j-log4j12:2.0.13'
+    implementation 'io.github.cdimascio:dotenv-kotlin:6.4.2'
+    implementation 'org.slf4j:slf4j-api:2.0.16'
+    implementation 'org.slf4j:slf4j-log4j12:2.0.16'
     implementation 'org.json:json:20240303'
     implementation 'com.google.guava:guava:33.2.1-jre'
     implementation 'com.opencsv:opencsv:5.9'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.2'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.3'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.2'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.5'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.5'
 }
 
 compileKotlin {

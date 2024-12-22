@@ -67,7 +67,7 @@ fun getReport(token: String): String {
         val who = rs.getString(1)
         val km = if (who.contains("Cavini")) 90 else 28
         val eurkm = 0.5
-        var cur = "\n---$who---\n![](logo.png)\n\nIncarico al socio volontario\n\nNome e Cognome: $who\nMotivazione: Turni in Ospedale\nLuogo: Ospedale Bufalini\nCentro di Spesa: Nasi Rossi del Dottor Jumba\n\n|Descrizione|Km|Uscite|\n|-|-|-|\n"
+        var cur = "\n---$who---\n![](logo.png)\n\n## Incarico al socio volontario\n\nNome e Cognome: $who\n\nMotivazione: Turni in Ospedale\n\nLuogo: Ospedale Bufalini\n\nCentro di Spesa: Nasi Rossi del Dottor Jumba\n\n|Descrizione|Km|Uscite|\n|-|-|-|\n"
         val query = """
             select concat('|', concat_ws('|', /*id,*/ slotdate/*, weekdayname, slotbin*/, '$km', '${(km * eurkm).roundToInt()}'), '|')
             from (
@@ -90,7 +90,7 @@ fun getReport(token: String): String {
             cur += rs2.getString(1) + "\n"
             count += 1
         }
-        cur += "\nTotale complessivo:\n\n|Turni|Km (0.50 Euro/km)|Totale (Euro)|\n|-|-|-|\n|$count|${count * km}|${(count * km * eurkm).roundToInt()}|\n\nDichiaro che i dati sono veritieri\n\nData: ${"$year-12-31" /*nowAsISO*/}\n\nFirma"
+        cur += "\n## Totale complessivo\n\n|Turni|Km (0.50 Euro/km)|Totale (Euro)|\n|-|-|-|\n|$count|${count * km}|${(count * km * eurkm).roundToInt()}|\n\nDichiaro che i dati sono veritieri\n\nData: ${"$year-12-31" /*nowAsISO*/}\n\nFirma"
         if (count > 0) res += cur
     }
     res = res.replace("Mon", "Lun")

@@ -65,7 +65,7 @@ fun getReport(token: String): String {
     var res = ""
     while (rs.next()) {
         val who = rs.getString(1)
-        val km = if (who.contains("Cavini")) 90 else 28
+        val km = if (who.contains("Cavini")) 90 else if (who.contains("Flangini") || who.contains("Bacchi") || who.contains("Dionigi")) 88 else 28
         val eurkm = 0.5
         var cur = "\n---$who---\n![](logo.png)\n\n## Incarico al socio volontario\n\nNome e Cognome: $who\n\nMotivazione: Turni in Ospedale\n\nLuogo: Ospedale Bufalini\n\nCentro di Spesa: Nasi Rossi del Dottor Jumba\n\n|Descrizione|Km|Uscite|\n|-|-|-|\n"
         val query = """

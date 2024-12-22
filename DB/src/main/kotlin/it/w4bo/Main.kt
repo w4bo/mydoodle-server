@@ -152,7 +152,7 @@ fun getTurniFatti(token: String, quando: type): String {
         return Pair(res, count)
     }
 
-    val turni = getResult(token, quando, true)
+    val turni = getResult(token, quando, quando == type.MONTH)
     var result = """Ciao Nasi!
         
         Turni ${if (quando == type.MONTH) "mensili" else if (quando == type.YEAR) "annuali" else "della prossima settimana"}: ${turni.second}

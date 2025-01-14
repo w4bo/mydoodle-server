@@ -111,7 +111,7 @@ fun getTurniFatti(token: String, quando: type): String {
 
     fun getResult(token: String, quando: type, current: Boolean): Pair<String, Int> {
         val year = cal[Calendar.YEAR]
-        val week = "to_date(c.slotdate, 'YYYY-MM-DD') between CURRENT_DATE ${if(current) "-7" else ""} and CURRENT_DATE ${if(current) "" else "+7"}"
+        val week = "to_date(c.slotdate, 'YYYY-MM-DD') between CURRENT_DATE ${if(current) "-7" else "+1"} and CURRENT_DATE ${if(current) "" else "+7"}"
         val month = cal[Calendar.MONTH] + (if (current) 1 else 2)
         val con = getConn()
         val query =

@@ -104,7 +104,7 @@ fun getReport(token: String, year: Int? = null): String {
         .replace("Fri", "Ven")
         .replace("Sat", "Sab")
         .replace("Sun", "Dom")
-    val s = res + "\n\n---ALL---\n\n" + res2
+    val s = res + "\n\n---ALL---\n\n# Clown attivi $year\n\n" + res2
     print(s)
     return s
 }

@@ -43,11 +43,11 @@ class Doodles {
 
 fun getResourceAsText(path: String) = object {}.javaClass.getResource(path)
 
-fun getReport(token: String): String {
+fun getReport(token: String, year: Int? = null): String {
     val cal: Calendar = GregorianCalendar(Locale.ITALY)
     val today = Date()
     cal.time = today
-    val year = cal[Calendar.YEAR]
+    val year = year?: cal[Calendar.YEAR]
 
     var query = """select distinct concat_ws(' ', a.firstname, a.lastname) from doodleuser a order by 1""".trimIndent()
 
@@ -63,6 +63,7 @@ fun getReport(token: String): String {
     // execute the query, and get a java resultset
     val rs: ResultSet = st.executeQuery(query)
     var res = ""
+    var res2 = ""
     while (rs.next()) {
         val who = rs.getString(1)
         val km = if (who.contains("Cavini")) 180 else if (who.contains("Flangini") || who.contains("Bacchi") || who.contains("Dionigi")) 88 else 28
@@ -91,7 +92,10 @@ fun getReport(token: String): String {
             count += 1
         }
         cur += "\n## Totale complessivo\n\n|Turni|Km|Totale (0.50 Euro/km)|\n|-|-|-|\n|$count|${count * km}|${(count * km * eurkm).roundToInt()}|\n\n*Dichiaro che i dati sono veritieri*\n\n**Data**: ${"$year-12-31" /*nowAsISO*/}\n\n**Firma**"
-        if (count > 0) res += cur
+        if (count > 0) {
+            res += cur
+            res2 += "- $who, $count\n"
+        }
     }
     res = res.replace("Mon", "Lun")
         .replace("Tue", "Mar")
@@ -100,8 +104,9 @@ fun getReport(token: String): String {
         .replace("Fri", "Ven")
         .replace("Sat", "Sab")
         .replace("Sun", "Dom")
-    print(res)
-    return res
+    val s = res + "\n\n---ALL---\n\n" + res2
+    print(s)
+    return s
 }
 
 fun getTurniFatti(token: String, quando: type): String {

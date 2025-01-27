@@ -331,7 +331,7 @@ fun writeTurni() {
             dateFrom.add(Calendar.DATE, 1)
         }
 
-        val formatterE = SimpleDateFormat("E")
+        val formatterE = SimpleDateFormat("E", Locale.US)
         datesInRange.forEach { date ->
             val dateString = formatter.format(date)
             val dayWeek = formatterE.format(date)
@@ -348,15 +348,21 @@ fun writeTurni() {
                     prepStmt.setString(9, today)
                     prepStmt.setString(10, doodle.token)
                     prepStmt.addBatch()
+                    println(date)
                 }
             }
         }
-        prepStmt.executeBatch()
+        try {
+            prepStmt.executeBatch()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
     prepStmt.close()
     con.close()
 }
 
 fun main() {
-    println(getDoodles().toString())
+    // println(getDoodles().toString())
+    writeTurni()
 }

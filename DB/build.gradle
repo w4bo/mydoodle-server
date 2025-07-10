@@ -28,7 +28,7 @@ dependencies {
     implementation 'mysql:mysql-connector-java:8.0.33'
     implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
     implementation 'org.apache.commons:commons-csv:1.14.0'
-    implementation 'org.apache.commons:commons-lang3:3.17.0'
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
     implementation 'commons-io:commons-io:2.19.0'
     implementation 'io.github.cdimascio:dotenv-kotlin:6.5.1'
     implementation 'org.slf4j:slf4j-api:2.0.17'

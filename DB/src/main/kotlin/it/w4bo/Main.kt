@@ -43,7 +43,7 @@ class Doodles {
 
 fun getResourceAsText(path: String) = object {}.javaClass.getResource(path)
 
-fun getReport(token: String, year: Int? = null): String {
+fun getReport(token: String, year: Int? = null, maxDate: String? = null): String {
     val cal: Calendar = GregorianCalendar(Locale.ITALY)
     val today = Date()
     cal.time = today
@@ -74,7 +74,7 @@ fun getReport(token: String, year: Int? = null): String {
             from (
                 select string_agg(concat_ws(' ', a.firstname, a.lastname), ', ') as id, b.slotdate, b.slotbin, b.slotwhere, c.weekdayname, count(*) as count
                 from doodleuser a, userindoodle b, doodle c
-                where c.slotyear=$year and (c.slotyear = $year or c.slotyear = $year + 1) and a.token = '$token' and a.token = b.u_token and b.d_token = c.token and a.id = b.id and b.slotdate = c.slotdate and b.slotbin = c.slotbin and b.slotwhere = c.slotwhere
+                where ${if (maxDate != null) "c.slotdate <= '$maxDate' and " else "" } c.slotyear=$year and (c.slotyear = $year or c.slotyear = $year + 1) and a.token = '$token' and a.token = b.u_token and b.d_token = c.token and a.id = b.id and b.slotdate = c.slotdate and b.slotbin = c.slotbin and b.slotwhere = c.slotwhere
                 group by b.slotdate, b.slotbin, b.slotwhere, c.weekdayname
                 having count(*) > 1
             ) a
@@ -91,7 +91,7 @@ fun getReport(token: String, year: Int? = null): String {
             cur += rs2.getString(1) + "\n"
             count += 1
         }
-        cur += "\n## Totale complessivo\n\n|Turni|Km|Totale (0.50 Euro/km)|\n|-|-|-|\n|$count|${count * km}|${(count * km * eurkm).roundToInt()}|\n\n*Dichiaro che i dati sono veritieri*\n\n**Data**: ${"$year-12-31" /*nowAsISO*/}\n\n**Firma**"
+        cur += "\n## Totale complessivo\n\n|Turni|Km|Totale (0.50 Euro/km)|\n|-|-|-|\n|$count|${count * km}|${(count * km * eurkm).roundToInt()}|\n\n*Dichiaro che i dati sono veritieri*\n\n**Data**: ${maxDate?: nowAsISO}\n\n**Firma**"
         if (count > 0) {
             res += cur
             res2 += "- $who, $count\n"
@@ -109,7 +109,7 @@ fun getReport(token: String, year: Int? = null): String {
     return s
 }
 
-fun getTurniFatti(token: String, quando: type): String {
+fun getTurniFatti(token: String, quando: type, maxDate: String? = null): String {
     val cal: Calendar = GregorianCalendar(Locale.ITALY)
     val today = Date()
     cal.time = today
@@ -125,7 +125,7 @@ fun getTurniFatti(token: String, quando: type): String {
             from (
                 select string_agg(concat_ws(' ', a.firstname, a.lastname), ', ') as id, b.slotdate, b.slotbin, b.slotwhere, c.weekdayname, count(*) as count
                 from doodleuser a, userindoodle b, doodle c
-                where ${if (quando == type.MONTH) "c.slotmonth = $month" else { if (quando==type.YEAR) "c.slotyear=$year" else week }} and (c.slotyear = $year or c.slotyear = $year + 1) and a.token = '$token' and a.token = b.u_token and b.d_token = c.token and a.id = b.id and b.slotdate = c.slotdate and b.slotbin = c.slotbin and b.slotwhere = c.slotwhere
+                where ${if (maxDate != null) "c.slotdate <= '$maxDate' and " else "" } ${if (quando == type.MONTH) "c.slotmonth = $month" else { if (quando==type.YEAR) "c.slotyear=$year" else week }} and (c.slotyear = $year or c.slotyear = $year + 1) and a.token = '$token' and a.token = b.u_token and b.d_token = c.token and a.id = b.id and b.slotdate = c.slotdate and b.slotbin = c.slotbin and b.slotwhere = c.slotwhere
                 group by b.slotdate, b.slotbin, b.slotwhere, c.weekdayname
                 ${if (quando == type.MONTH || quando == type.YEAR || current) "having count(*) > 1" else ""}
             ) a
@@ -364,5 +364,7 @@ fun writeTurni() {
 
 fun main() {
     // println(getDoodles().toString())
-    writeTurni()
+    // writeTurni()
+    getTurniFatti("ATsMdSxyZP", quando = type.YEAR, "2025-02-28")
+    getReport("ATsMdSxyZP", maxDate = "2025-02-28")
 }

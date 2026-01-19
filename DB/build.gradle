@@ -36,8 +36,8 @@ dependencies {
     implementation 'org.json:json:20250517'
     implementation 'com.google.guava:guava:33.5.0-jre'
     implementation 'com.opencsv:opencsv:5.12.0'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.20.1'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.21.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
 }
